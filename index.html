@@ -11,7 +11,10 @@
 :root{
   --bg:#EDEEF5; --lead:#1D1B30; --text:#1D1B30; --muted:#5B5873; --surface:#FFFFFF;
   --lapis:#2E5AAC; --emerald:#1F8A70; --ruby:#B83B5E; --amber:#C98A10;
+  --violet:#6B45C8; --sky:#35A7E0; --ink:#1D1B30;
   --good:#1F8A70; --bad:#B83B5E; --line:rgba(29,27,48,.14);
+  --shadow:rgba(52,36,120,.22); --edge:rgba(29,27,48,.18);
+  --glow1:rgba(107,69,200,.22); --glow2:rgba(53,167,224,.24); --glow3:rgba(184,59,94,.18); --glow4:rgba(201,138,16,.2);
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
@@ -20,17 +23,32 @@
   :root:not([data-theme="light"]){
     --bg:#15142A; --lead:#07061A; --text:#F1EEFF; --muted:#A9A5C7; --surface:#201F3A;
     --lapis:#4A7BD6; --emerald:#2BAA8A; --ruby:#D5577A; --amber:#E4A92E;
+    --violet:#9270F0; --sky:#4CC0F2; --ink:#1D1B30;
     --good:#2BAA8A; --bad:#D5577A; --line:rgba(241,238,255,.14);
+    --shadow:rgba(0,0,0,.55); --edge:rgba(0,0,0,.45);
+    --glow1:rgba(146,112,240,.28); --glow2:rgba(76,192,242,.2); --glow3:rgba(213,87,122,.2); --glow4:rgba(228,169,46,.14);
+    color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --bg:#15142A; --lead:#07061A; --text:#F1EEFF; --muted:#A9A5C7; --surface:#201F3A;
   --lapis:#4A7BD6; --emerald:#2BAA8A; --ruby:#D5577A; --amber:#E4A92E;
-  --good:#2BAA8A; --bad:#D5577A; --line:rgba(241,238,255,.14);
+  --violet:#9270F0; --sky:#4CC0F2; --ink:#1D1B30;
+    --good:#2BAA8A; --bad:#D5577A; --line:rgba(241,238,255,.14);
+    --shadow:rgba(0,0,0,.55); --edge:rgba(0,0,0,.45);
+    --glow1:rgba(146,112,240,.28); --glow2:rgba(76,192,242,.2); --glow3:rgba(213,87,122,.2); --glow4:rgba(228,169,46,.14);
+    color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+body{margin:0;min-height:100%;color:var(--text);background-color:var(--bg);
+  background:
+    radial-gradient(60vmax 45vmax at 0% 0%,var(--glow1),transparent 60%),
+    radial-gradient(55vmax 40vmax at 100% 10%,var(--glow2),transparent 60%),
+    radial-gradient(60vmax 45vmax at 100% 100%,var(--glow3),transparent 60%),
+    radial-gradient(50vmax 40vmax at 0% 90%,var(--glow4),transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
   font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
   -webkit-font-smoothing:antialiased}
 .app{max-width:560px;margin:0 auto;padding:20px 18px 32px;min-height:100%;display:flex;flex-direction:column}
@@ -188,6 +206,112 @@ h1{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;line-height:1;margin:0 0 1
 .over{text-align:center;margin-top:8px}
 .over[hidden],.pad[hidden],.incoming[hidden]{display:none}
 
+/* ===== 3D glass layer ===== */
+.g0{--c:var(--lapis)} .g1{--c:var(--ruby)} .g2{--c:var(--emerald)} .g3{--c:var(--amber)} .g4{--c:var(--violet)} .g5{--c:var(--sky)}
+.pane.g0,.pane.g1,.pane.g2,.pane.g3,.pane.g4,.pane.g5,
+.tile.g0,.tile.g1,.tile.g2,.tile.g3,.tile.g4,.tile.g5,
+.cell.g0,.cell.g1,.cell.g2,.cell.g3,.cell.g4,.cell.g5{
+  color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.25);
+  background:
+    radial-gradient(120% 90% at 20% 0%,rgba(255,255,255,.38),rgba(255,255,255,0) 55%),
+    linear-gradient(160deg,color-mix(in srgb,var(--c),#fff 18%),var(--c) 55%,color-mix(in srgb,var(--c),#000 18%));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18),
+    0 5px 0 color-mix(in srgb,var(--c),#000 42%),0 9px 16px var(--shadow);
+}
+.pane.g3,.pane.g5,.tile.g3,.tile.g5,.cell.g3,.cell.g5{color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.35)}
+.pane::after,.tile::after{display:none}
+
+/* Leaded frame gets depth */
+.panes,.tiles,.well{gap:12px;padding:12px;border-radius:22px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--lead),#fff 8%),var(--lead));
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.5),0 2px 0 rgba(255,255,255,.08),0 16px 34px var(--shadow)}
+.pane{border-radius:14px;transition:transform .12s,box-shadow .12s,opacity .2s}
+.pane:not(:disabled):hover{transform:translateY(-2px)}
+.pane:not(:disabled):active,.tile:not(:disabled):active{transform:translateY(4px);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 1px 0 color-mix(in srgb,var(--c),#000 42%),0 3px 6px var(--shadow)}
+.panes.done .pane.picked{box-shadow:0 0 0 3px #fff,0 0 26px 6px color-mix(in srgb,var(--c),transparent 30%),0 5px 0 color-mix(in srgb,var(--c),#000 42%)}
+.tile{border-radius:12px;transition:transform .1s,box-shadow .1s,opacity .2s}
+.tile:disabled{opacity:.18;transform:translateY(4px)}
+
+/* Stained-glass window in 3D */
+.window-wrap{perspective:700px;margin:24px auto 26px}
+.window{margin:0 auto;width:156px;height:204px;grid-template-rows:1.2fr 1fr 1fr;border-radius:78px 78px 10px 10px;
+  transform:rotateY(-16deg) rotateX(8deg);transform-style:preserve-3d;animation:sway 7s ease-in-out infinite alternate;
+  background:linear-gradient(145deg,#3a3656,#0d0b1f);
+  box-shadow:10px 14px 0 -2px color-mix(in srgb,var(--lead),#000 30%),18px 30px 40px var(--shadow),0 0 60px var(--glow1),inset 0 2px 0 rgba(255,255,255,.2)}
+.window span{box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -8px 16px rgba(0,0,0,.25);
+  background-image:radial-gradient(90% 70% at 25% 10%,rgba(255,255,255,.5),rgba(255,255,255,0) 55%)!important}
+.window span:nth-child(1){background-color:var(--lapis);border-radius:72px 0 0 0}
+.window span:nth-child(2){background-color:var(--ruby);border-radius:0 72px 0 0}
+.window span:nth-child(3){background-color:var(--emerald)}
+.window span:nth-child(4){background-color:var(--amber)}
+.window span:nth-child(5){background-color:var(--violet)}
+.window span:nth-child(6){background-color:var(--sky)}
+@keyframes sway{from{transform:rotateY(-16deg) rotateX(8deg)}to{transform:rotateY(14deg) rotateX(4deg) translateY(-4px)}}
+
+/* Rainbow title with a stacked 3D edge */
+h1{background:linear-gradient(95deg,var(--lapis),var(--violet) 30%,var(--ruby) 55%,var(--amber) 80%,var(--emerald));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 0 color-mix(in srgb,var(--violet),#000 40%)) drop-shadow(0 4px 0 color-mix(in srgb,var(--violet),#000 60%)) drop-shadow(0 10px 14px var(--shadow))}
+
+/* Chunky buttons */
+.primary{color:#fff;background:linear-gradient(135deg,var(--violet),var(--ruby));border-radius:16px;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 6px 0 color-mix(in srgb,var(--violet),#000 45%),0 12px 22px var(--shadow);
+  text-shadow:0 1px 0 rgba(0,0,0,.25);transition:transform .1s,box-shadow .1s}
+.primary:active{transform:translateY(5px);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 1px 0 color-mix(in srgb,var(--violet),#000 45%),0 4px 8px var(--shadow)}
+.ghost,.pad button{background:var(--surface);border:0;
+  box-shadow:inset 0 0 0 2px var(--line),0 5px 0 var(--edge),0 10px 18px var(--shadow);transition:transform .1s,box-shadow .1s}
+.ghost:active,.pad button:active{transform:translateY(4px);box-shadow:inset 0 0 0 2px var(--line),0 1px 0 var(--edge),0 3px 6px var(--shadow)}
+.wf-btn{background:linear-gradient(135deg,color-mix(in srgb,var(--sky),var(--surface) 78%),color-mix(in srgb,var(--emerald),var(--surface) 80%))}
+.wf-btn b{color:var(--text)}
+
+/* Level cards: each level its own glass colour */
+.lvl{--c:var(--violet);border:0;border-radius:16px;position:relative;
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--c),transparent 55%),0 5px 0 color-mix(in srgb,var(--c),#000 30%),0 10px 18px var(--shadow);
+  transition:transform .1s,box-shadow .1s,background .2s}
+.lvl[data-l="easy"]{--c:var(--emerald)} .lvl[data-l="medium"]{--c:var(--lapis)} .lvl[data-l="hard"]{--c:var(--ruby)} .lvl[data-l="puzzles"]{--c:var(--amber)}
+.lvl b{color:color-mix(in srgb,var(--c),var(--text) 25%)}
+.lvl[aria-pressed="true"]{color:#fff;background:
+    radial-gradient(120% 90% at 20% 0%,rgba(255,255,255,.35),rgba(255,255,255,0) 55%),
+    linear-gradient(160deg,color-mix(in srgb,var(--c),#fff 15%),var(--c));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 5px 0 color-mix(in srgb,var(--c),#000 42%),0 12px 22px var(--shadow)}
+.lvl[aria-pressed="true"] b,.lvl[aria-pressed="true"] small{color:#fff}
+.lvl[data-l="puzzles"][aria-pressed="true"] b,.lvl[data-l="puzzles"][aria-pressed="true"] small{color:var(--ink)}
+.lvl:active{transform:translateY(4px)}
+
+/* HUD & timer */
+.timer{height:12px;border-radius:12px;box-shadow:inset 0 2px 3px rgba(0,0,0,.2)}
+.timer i{border-radius:12px;background:linear-gradient(90deg,var(--ruby),var(--amber),var(--emerald),var(--sky),var(--violet));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.4)}
+.hud .score,#fScore{background:linear-gradient(95deg,var(--violet),var(--ruby));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Raised surfaces */
+.clues li,.review li,.stats div,.found span,.incoming span,.slot.filled{
+  box-shadow:0 4px 0 var(--edge),0 10px 20px var(--shadow)}
+.stats{gap:12px;padding:12px;border-radius:22px;background:linear-gradient(180deg,color-mix(in srgb,var(--lead),#fff 8%),var(--lead));
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.5),0 16px 34px var(--shadow)}
+.stats div{border-radius:14px}
+.stats div:nth-child(1) b{color:var(--emerald)} .stats div:nth-child(2) b{color:var(--ruby)} .stats div:nth-child(3) b{color:var(--lapis)}
+.big{background:linear-gradient(95deg,var(--lapis),var(--violet),var(--ruby),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 0 color-mix(in srgb,var(--violet),#000 50%)) drop-shadow(0 10px 14px var(--shadow))}
+.found span:nth-child(6n+1){background:color-mix(in srgb,var(--lapis),var(--surface) 80%)}
+.found span:nth-child(6n+2){background:color-mix(in srgb,var(--ruby),var(--surface) 80%)}
+.found span:nth-child(6n+3){background:color-mix(in srgb,var(--emerald),var(--surface) 80%)}
+.found span:nth-child(6n+4){background:color-mix(in srgb,var(--amber),var(--surface) 78%)}
+.found span:nth-child(6n+5){background:color-mix(in srgb,var(--violet),var(--surface) 80%)}
+.found span:nth-child(6n+6){background:color-mix(in srgb,var(--sky),var(--surface) 78%)}
+.incoming span.now{background:linear-gradient(135deg,var(--violet),var(--ruby));color:#fff;border-color:transparent}
+.slot{border-radius:11px}
+
+/* Word Fall blocks */
+.cell{border-radius:8px;background:rgba(255,255,255,.04);box-shadow:inset 0 3px 6px rgba(0,0,0,.45)}
+.cell.g0,.cell.g1,.cell.g2,.cell.g3,.cell.g4,.cell.g5{box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -3px 0 rgba(0,0,0,.25),
+  inset 3px 0 0 rgba(255,255,255,.12),inset -3px 0 0 rgba(0,0,0,.14),0 3px 0 color-mix(in srgb,var(--c),#000 45%)}
+.cell::after{display:none}
+.cell.live{transform:translateY(-2px);box-shadow:0 0 0 2px #fff,0 0 18px 4px color-mix(in srgb,var(--c),transparent 25%),inset 0 2px 0 rgba(255,255,255,.5)}
+.cell.ghost{background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.well{gap:5px;padding:8px}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -195,7 +319,7 @@ h1{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;line-height:1;margin:0 0 1
 <main class="app">
 
   <section class="screen on" id="start" aria-labelledby="t">
-    <div class="window" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <div class="window-wrap" aria-hidden="true"><div class="window"><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
     <h1 id="t">Bible Quiz</h1>
     <p class="lede">Ten questions against the clock, with puzzles mixed in. Answer fast and keep your streak alive.</p>
     <p class="label">Choose a level</p>
@@ -495,7 +619,8 @@ function renderChoices(q){
   const opts=q.k==="True or false"?["True","False"]:shuffle([q.a,...q.w]);
   const box=$("panes");
   box.style.gridTemplateColumns=opts.length===2?"1fr 1fr":"1fr";
-  opts.forEach(o=>{const b=el("button","pane",o);b.onclick=()=>answer(o,b);box.appendChild(b)});
+  const off=Math.floor(Math.random()*6);
+  opts.forEach((o,k)=>{const b=el("button","pane g"+((k+off)%6),o);b.onclick=()=>answer(o,b);box.appendChild(b)});
 }
 
 function renderClues(q){
@@ -529,7 +654,7 @@ function renderScramble(q){
       slots.appendChild(s);
     }
     letters.forEach((L,j)=>{
-      const t=el("button","tile",L);t.disabled=picks.includes(j);
+      const t=el("button","tile g"+(j%6),L);t.disabled=picks.includes(j);
       t.onclick=()=>{
         if(locked||picks.includes(j))return;picks.push(j);draw();
         if(picks.length===word.length){
@@ -551,8 +676,9 @@ function renderOrder(q){
   let picks=[];const btns=[];
   P.hidden=false;
   P.append(el("p","hint","Tap them from first to last. Tap a numbered one to undo it. Your order locks in when all are numbered."));
-  sh.forEach(it=>{
-    const b=el("button","pane"), badge=el("span","badge");
+  const off=Math.floor(Math.random()*6);
+  sh.forEach((it,n)=>{
+    const b=el("button","pane g"+((n+off)%6)), badge=el("span","badge");
     b.append(badge,it);btns.push({b,badge,it});
     b.onclick=()=>{
       if(locked)return;
@@ -655,7 +781,7 @@ function wfSpawn(){
   if(wf.idx>=wf.word.length){wf.word=wfPickWord();wf.idx=0}
   const ch=wf.word[wf.idx++], c=3;
   if(wf.board[0][c]){wfGameOver();return}
-  wf.piece={r:0,c,ch,k:Math.floor(Math.random()*4)};wf.acc=0;wfRender();
+  wf.piece={r:0,c,ch,k:Math.floor(Math.random()*6)};wf.acc=0;wfRender();
 }
 function wfFree(r,c){return r>=0&&r<ROWS&&c>=0&&c<COLS&&!wf.board[r][c]}
 function wfMove(d){if(!wf||wf.busy||wf.over||!wf.piece)return;const p=wf.piece;if(wfFree(p.r,p.c+d)){p.c+=d;wfRender()}}
@@ -716,8 +842,8 @@ function wfRender(){
   let gr=-1;if(p){gr=p.r;while(wfFree(gr+1,p.c))gr++}
   for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
     const d=cells[r*COLS+c], v=wf.board[r][c];
-    if(v){d.className="cell c"+v.k;d.textContent=v.ch}
-    else if(p&&p.r===r&&p.c===c){d.className="cell live c"+p.k;d.textContent=p.ch}
+    if(v){d.className="cell g"+v.k;d.textContent=v.ch}
+    else if(p&&p.r===r&&p.c===c){d.className="cell live g"+p.k;d.textContent=p.ch}
     else if(p&&gr===r&&p.c===c&&gr!==p.r){d.className="cell ghost";d.textContent=""}
     else{d.className="cell";d.textContent=""}
   }
