@@ -105,6 +105,40 @@ h1{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;line-height:1;margin:0 0 1
 .verdict{font-family:Newsreader,Georgia,serif;font-size:1.2rem;line-height:1.5;text-align:center;margin:0 auto 26px;max-width:32ch}
 .ghost{background:transparent;color:var(--text);border:2px solid var(--line);border-radius:14px;padding:15px;font-weight:600;width:100%;margin-top:10px}
 
+.lvl.wide{grid-column:1/-1}
+
+/* Puzzles */
+.puzzle{margin-bottom:14px}
+.puzzle[hidden],.panes[hidden]{display:none}
+.slots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:16px}
+.slot{width:40px;height:48px;border-radius:9px;border:2px dashed var(--line);background:transparent;color:var(--text);
+  font-weight:800;font-size:1.3rem;display:grid;place-items:center;padding:0}
+.slot.filled{border-style:solid;border-color:var(--text);background:var(--surface)}
+.slots.right .slot{border-color:var(--good);color:var(--good)}
+.slots.wrong .slot{border-color:var(--bad);color:var(--bad)}
+.slots.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;background:var(--lead);padding:8px;border-radius:18px}
+.tile{width:44px;height:50px;border-radius:9px;color:#fff;font-weight:800;font-size:1.3rem;padding:0;position:relative}
+.tile::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(255,255,255,0) 45%)}
+.tile:nth-child(4n+1){background:var(--lapis)}
+.tile:nth-child(4n+2){background:var(--ruby)}
+.tile:nth-child(4n+3){background:var(--emerald)}
+.tile:nth-child(4n+4){background:var(--amber);color:#1D1B30}
+.tile:disabled{opacity:.2;cursor:default}
+.tools{display:flex;justify-content:center;margin-top:10px}
+.link{background:transparent;color:var(--muted);font-weight:600;text-decoration:underline;padding:8px 12px}
+.link:disabled{opacity:.4;cursor:default}
+.pane .badge{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;margin-right:10px;
+  background:rgba(255,255,255,.25);font-weight:800;vertical-align:middle}
+.pane .badge:empty{background:transparent;border:2px solid rgba(255,255,255,.5)}
+.clues{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.clues li{background:var(--surface);border-radius:12px;padding:12px 14px;font-family:Newsreader,Georgia,serif;font-size:1.1rem;line-height:1.4;
+  border-left:5px solid var(--amber)}
+.clues li b{font-family:"Bricolage Grotesque",system-ui,sans-serif;color:var(--muted);font-size:.8rem;display:block;margin-bottom:2px}
+.hint{color:var(--muted);font-size:.9rem;text-align:center;margin:8px 0 0}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -114,13 +148,14 @@ h1{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;line-height:1;margin:0 0 1
   <section class="screen on" id="start" aria-labelledby="t">
     <div class="window" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
     <h1 id="t">Bible Quiz</h1>
-    <p class="lede">Ten questions. Twenty seconds each. Answer fast and keep your streak alive.</p>
+    <p class="lede">Ten questions against the clock, with puzzles mixed in. Answer fast and keep your streak alive.</p>
     <p class="label">Choose a level</p>
     <div class="levels" role="group" aria-label="Level">
       <button class="lvl" data-l="mixed" aria-pressed="true"><b>Mixed</b><small>A bit of everything</small></button>
       <button class="lvl" data-l="easy" aria-pressed="false"><b>Easy</b><small>100 pts each</small></button>
       <button class="lvl" data-l="medium" aria-pressed="false"><b>Medium</b><small>150 pts each</small></button>
       <button class="lvl" data-l="hard" aria-pressed="false"><b>Hard</b><small>200 pts each</small></button>
+      <button class="lvl wide" data-l="puzzles" aria-pressed="false"><b>Puzzles only</b><small>Unscramble, put in order, who am I, odd one out</small></button>
     </div>
     <button class="primary" id="go">Start round</button>
     <p class="best" id="bestStart"></p>
@@ -134,6 +169,7 @@ h1{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;line-height:1;margin:0 0 1
     <div class="timer" aria-hidden="true"><i id="bar"></i></div>
     <p class="kind" id="kind"></p>
     <h2 class="q" id="q"></h2>
+    <div class="puzzle" id="puzzle" hidden></div>
     <div class="panes" id="panes"></div>
     <div class="reveal" id="reveal"><h2 id="rh"></h2><p id="rn"></p><p class="ref" id="rr"></p></div>
     <button class="primary next" id="next">Next question</button>
@@ -157,6 +193,57 @@ h1{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;line-height:1;margin:0 0 1
 </main>
 <script>
 const Q=[
+// PUZZLES — Unscramble
+{d:"easy",k:"Unscramble",t:"scramble",q:"He built the ark.",a:"NOAH",n:"Noah built the ark of gopher wood.",r:"Genesis 6:14"},
+{d:"easy",k:"Unscramble",t:"scramble",q:"The garden God planted for Adam.",a:"EDEN",n:"The Lord planted a garden eastward in Eden.",r:"Genesis 2:8"},
+{d:"easy",k:"Unscramble",t:"scramble",q:"The shepherd boy anointed as king.",a:"DAVID",n:"Samuel anointed the youngest son of Jesse.",r:"1 Samuel 16:11–13"},
+{d:"easy",k:"Unscramble",t:"scramble",q:"Jesus called him out of the tomb.",a:"LAZARUS",n:"“Lazarus, come forth.”",r:"John 11:43–44"},
+{d:"easy",k:"Unscramble",t:"scramble",q:"The mother of Jesus.",a:"MARY",n:"Gabriel was sent to a virgin named Mary.",r:"Luke 1:26–27"},
+{d:"medium",k:"Unscramble",t:"scramble",q:"The town where Jesus was born.",a:"BETHLEHEM",n:"Bethlehem of Judea, the city of David.",r:"Matthew 2:1"},
+{d:"medium",k:"Unscramble",t:"scramble",q:"The queen who went to the king uninvited.",a:"ESTHER",n:"“If I perish, I perish.”",r:"Esther 4:16"},
+{d:"medium",k:"Unscramble",t:"scramble",q:"The prophet taken up in a whirlwind.",a:"ELIJAH",n:"A chariot of fire parted him from Elisha.",r:"2 Kings 2:11"},
+{d:"medium",k:"Unscramble",t:"scramble",q:"The king who built the first temple.",a:"SOLOMON",n:"He built it in seven years.",r:"1 Kings 6:38"},
+{d:"medium",k:"Unscramble",t:"scramble",q:"The mountain where Moses received the Law.",a:"SINAI",n:"The Lord came down upon mount Sinai.",r:"Exodus 19:20"},
+{d:"hard",k:"Unscramble",t:"scramble",q:"The garden where Jesus prayed before his arrest.",a:"GETHSEMANE",n:"“Sit ye here, while I go and pray yonder.”",r:"Matthew 26:36"},
+{d:"hard",k:"Unscramble",t:"scramble",q:"The longest-lived man in the Bible.",a:"METHUSELAH",n:"He lived 969 years.",r:"Genesis 5:27"},
+{d:"hard",k:"Unscramble",t:"scramble",q:"King of Salem and priest of the most high God.",a:"MELCHIZEDEK",n:"He blessed Abram and brought out bread and wine.",r:"Genesis 14:18"},
+{d:"hard",k:"Unscramble",t:"scramble",q:"The chief tax collector of Jericho.",a:"ZACCHAEUS",n:"He climbed a sycamore tree to see Jesus.",r:"Luke 19:2–4"},
+{d:"hard",k:"Unscramble",t:"scramble",q:"The island where John saw the Revelation.",a:"PATMOS",n:"John was there for the word of God.",r:"Revelation 1:9"},
+{d:"hard",k:"Unscramble",t:"scramble",q:"His name means “son of encouragement.”",a:"BARNABAS",n:"The apostles gave Joseph of Cyprus this name.",r:"Acts 4:36"},
+// PUZZLES — Put in order
+{d:"easy",k:"Put in order",t:"order",q:"Put the first four books of the Bible in order.",items:["Genesis","Exodus","Leviticus","Numbers"],n:"Deuteronomy completes the five books of Moses.",r:"Old Testament order"},
+{d:"easy",k:"Put in order",t:"order",q:"Put the four Gospels in Bible order.",items:["Matthew","Mark","Luke","John"],n:"Acts follows John.",r:"New Testament order"},
+{d:"easy",k:"Put in order",t:"order",q:"Put these in the order God made them.",items:["Light","The sky","Dry land and plants","Sun, moon and stars"],n:"Days one to four of creation.",r:"Genesis 1:3–19"},
+{d:"medium",k:"Put in order",t:"order",q:"Put these events in Jesus' life in order.",items:["Born in Bethlehem","Baptized in the Jordan","Feeds the five thousand","The Last Supper"],n:"From the nativity to the night he was betrayed.",r:"Matthew 2; 3; 14; 26"},
+{d:"medium",k:"Put in order",t:"order",q:"Put these kings in the order they reigned.",items:["Saul","David","Solomon","Rehoboam"],n:"The kingdom split under Rehoboam.",r:"1 Samuel 10 – 1 Kings 12"},
+{d:"medium",k:"Put in order",t:"order",q:"Put Joseph's story in order.",items:["Sold by his brothers","Serves in Potiphar's house","Thrown into prison","Interprets Pharaoh's dreams"],n:"From the pit to the palace.",r:"Genesis 37–41"},
+{d:"medium",k:"Put in order",t:"order",q:"Put these moments from Moses' life in order.",items:["Found in a basket","The burning bush","The plagues on Egypt","The Ten Commandments"],n:"From the Nile to Sinai.",r:"Exodus 2–20"},
+{d:"hard",k:"Put in order",t:"order",q:"Put these books in Bible order.",items:["Ezra","Nehemiah","Esther","Job"],n:"The history books end with Esther; the poetry books begin with Job.",r:"Old Testament order"},
+{d:"hard",k:"Put in order",t:"order",q:"Put these letters of Paul in Bible order.",items:["Romans","1 Corinthians","Galatians","Ephesians"],n:"2 Corinthians sits between 1 Corinthians and Galatians.",r:"New Testament order"},
+{d:"hard",k:"Put in order",t:"order",q:"Put these men in order by generation.",items:["Abraham","Isaac","Jacob","Joseph"],n:"Father to son, four generations.",r:"Genesis 21–30"},
+{d:"hard",k:"Put in order",t:"order",q:"Put these judges in the order they appear.",items:["Othniel","Ehud","Deborah","Gideon"],n:"Judges 3, 3, 4 and 6.",r:"Judges 3–6"},
+{d:"hard",k:"Put in order",t:"order",q:"Put these prophets' books in Bible order.",items:["Hosea","Joel","Amos","Obadiah"],n:"The first four of the twelve minor prophets.",r:"Old Testament order"},
+// PUZZLES — Odd one out
+{d:"easy",k:"Odd one out",q:"Which of these is not one of the four Gospels?",a:"Acts",w:["Mark","Luke","John"],n:"Acts continues the story after the Gospels.",r:"Acts 1:1"},
+{d:"easy",k:"Odd one out",q:"Which of these was not a plague on Egypt?",a:"Earthquake",w:["Frogs","Locusts","Darkness"],n:"There were ten plagues; an earthquake was not one of them.",r:"Exodus 7–12"},
+{d:"medium",k:"Odd one out",q:"Which of these was not one of the twelve apostles Jesus chose?",a:"Paul",w:["Andrew","Bartholomew","Thaddaeus"],n:"Paul became an apostle later, after meeting Jesus on the Damascus road.",r:"Matthew 10:2–4"},
+{d:"medium",k:"Odd one out",q:"Which of these is not a book of the Bible?",a:"Hezekiah",w:["Obadiah","Habakkuk","Zephaniah"],n:"Hezekiah was a king of Judah, but no book bears his name.",r:"2 Kings 18–20"},
+{d:"medium",k:"Odd one out",q:"Which of these was not a judge of Israel?",a:"Jeremiah",w:["Gideon","Samson","Deborah"],n:"Jeremiah was a prophet in the last days of Judah.",r:"Jeremiah 1:1–3"},
+{d:"medium",k:"Odd one out",q:"Which of these was not a son of Noah?",a:"Enoch",w:["Shem","Ham","Japheth"],n:"Enoch was Noah's great-grandfather.",r:"Genesis 5:21–29; 6:10"},
+{d:"hard",k:"Odd one out",q:"Which of these was not a son of Jacob?",a:"Ephraim",w:["Dan","Asher","Naphtali"],n:"Ephraim was Jacob's grandson, a son of Joseph.",r:"Genesis 35:22–26; 41:52"},
+{d:"hard",k:"Odd one out",q:"Which of these is not listed as a fruit of the Spirit?",a:"Wisdom",w:["Joy","Peace","Goodness"],n:"Love, joy, peace, longsuffering, gentleness, goodness, faith, meekness, temperance.",r:"Galatians 5:22–23"},
+// PUZZLES — Who am I?
+{d:"easy",k:"Who am I?",t:"clues",q:"Who am I?",clues:["I was the youngest of my brothers.","I looked after my father's sheep.","I faced a giant with a sling and a stone."],a:"David",w:["Saul","Samson","Joseph"],n:"David, son of Jesse.",r:"1 Samuel 16–17"},
+{d:"easy",k:"Who am I?",t:"clues",q:"Who am I?",clues:["My mother hid me when I was a baby.","I grew up in Pharaoh's palace.","I saw a bush that burned but was not consumed."],a:"Moses",w:["Joseph","Aaron","Joshua"],n:"Moses was drawn out of the water by Pharaoh's daughter.",r:"Exodus 2–3"},
+{d:"easy",k:"Who am I?",t:"clues",q:"Who am I?",clues:["I was a fisherman.","I walked on water, for a moment.","Jesus called me the rock."],a:"Peter",w:["Andrew","John","James"],n:"“Thou art Peter, and upon this rock I will build my church.”",r:"Matthew 14:29; 16:18"},
+{d:"easy",k:"Who am I?",t:"clues",q:"Who am I?",clues:["I was a prophet.","I ran away from where God sent me.","I spent three days inside a great fish."],a:"Jonah",w:["Elijah","Amos","Jeremiah"],n:"Jonah fled toward Tarshish instead of going to Nineveh.",r:"Jonah 1"},
+{d:"medium",k:"Who am I?",t:"clues",q:"Who am I?",clues:["I was a widow from Moab.","I gleaned in the fields of Boaz.","I became the great-grandmother of King David."],a:"Ruth",w:["Naomi","Orpah","Rahab"],n:"Ruth married Boaz; their son Obed was the father of Jesse.",r:"Ruth 4:13–17"},
+{d:"medium",k:"Who am I?",t:"clues",q:"Who am I?",clues:["I was a Pharisee and a ruler of the Jews.","I came to Jesus by night.","I brought spices to help bury him."],a:"Nicodemus",w:["Joseph of Arimathea","Gamaliel","Caiaphas"],n:"Jesus told him he must be born again.",r:"John 3:1–3; 19:39"},
+{d:"medium",k:"Who am I?",t:"clues",q:"Who am I?",clues:["My brothers sold me.","I was falsely accused and put in prison.","I became governor over Egypt."],a:"Joseph",w:["Benjamin","Daniel","Moses"],n:"“Ye thought evil against me; but God meant it unto good.”",r:"Genesis 37–50"},
+{d:"hard",k:"Who am I?",t:"clues",q:"Who am I?",clues:["I was a judge and a prophet.","I anointed two kings.","As a boy I heard God call my name in the night."],a:"Samuel",w:["Eli","Nathan","Elisha"],n:"Samuel anointed Saul and then David.",r:"1 Samuel 3; 10; 16"},
+{d:"hard",k:"Who am I?",t:"clues",q:"Who am I?",clues:["Paul called me the beloved physician.","I travelled with Paul.","I wrote an orderly account for Theophilus."],a:"Luke",w:["Mark","Silas","Timothy"],n:"Luke wrote the Gospel that bears his name and the book of Acts.",r:"Colossians 4:14; Luke 1:3"},
+{d:"hard",k:"Who am I?",t:"clues",q:"Who am I?",clues:["I was a queen of Israel.","I led the people into the worship of Baal.","I swore to take Elijah's life."],a:"Jezebel",w:["Athaliah","Vashti","Michal"],n:"Elijah fled from her after Mount Carmel.",r:"1 Kings 19:1–3"},
+{d:"hard",k:"Who am I?",t:"clues",q:"Who am I?",clues:["I sold purple cloth.","I came from the city of Thyatira.","Paul baptized me and my household by a river at Philippi."],a:"Lydia",w:["Priscilla","Dorcas","Phoebe"],n:"The Lord opened her heart to what Paul said.",r:"Acts 16:14–15"},
 // EASY
 {d:"easy",k:"Multiple choice",q:"Who built the ark?",a:"Noah",w:["Moses","Abraham","David"],n:"God told Noah to build an ark of gopher wood before the flood.",r:"Genesis 6:14"},
 {d:"easy",k:"Multiple choice",q:"How many disciples did Jesus choose as apostles?",a:"12",w:["7","10","40"],n:"Jesus appointed twelve to be with him and to preach.",r:"Mark 3:14"},
@@ -280,16 +367,19 @@ const Q=[
 {d:"hard",k:"True or false",q:"The Gospel of Luke and the book of Acts are both addressed to Theophilus.",a:"True",w:["False"],n:"Acts opens by referring back to “the former treatise.”",r:"Luke 1:3; Acts 1:1"}
 ];
 
-const PTS={easy:100,medium:150,hard:200}, ROUND=10, TIME=20;
-let level="mixed", deck=[], i=0, score=0, streak=0, bestStreak=0, correct=0, t0=0, raf=0, locked=false;
+const PTS={easy:100,medium:150,hard:200}, ROUND=10;
+const isPuzzle=q=>!!q.t||q.k==="Odd one out";
+const limitFor=q=>q.t==="scramble"||q.t==="order"?40:q.t==="clues"?30:20;
+let level="mixed", deck=[], i=0, score=0, streak=0, bestStreak=0, correct=0, t0=0, raf=0, locked=false, lim=20, clueN=1;
 const $=id=>document.getElementById(id);
 
 function getBest(){try{return JSON.parse(localStorage.getItem("bq-best")||"{}")}catch(e){return{}}}
 function setBest(o){try{localStorage.setItem("bq-best",JSON.stringify(o))}catch(e){}}
 function shuffle(a){a=a.slice();for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[a[j],a[k]]=[a[k],a[j]]}return a}
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id));window.scrollTo(0,0)}
-function name(l){return l[0].toUpperCase()+l.slice(1)}
+function name(l){return l==="puzzles"?"Puzzles":l[0].toUpperCase()+l.slice(1)}
 function paintBest(){const b=getBest()[level];$("bestStart").textContent=b?`Your best on ${name(level)}: ${b}`:""}
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
 
 document.querySelectorAll(".lvl").forEach(b=>b.onclick=()=>{
   level=b.dataset.l;
@@ -298,61 +388,152 @@ document.querySelectorAll(".lvl").forEach(b=>b.onclick=()=>{
 });
 
 function start(){
-  const pool=level==="mixed"?Q:Q.filter(q=>q.d===level);
+  const pool=level==="mixed"?Q:level==="puzzles"?Q.filter(isPuzzle):Q.filter(q=>q.d===level);
   deck=shuffle(pool).slice(0,ROUND);
   i=0;score=0;streak=0;bestStreak=0;correct=0;
   show("game");ask();
 }
 
 function ask(){
-  locked=false;
-  const q=deck[i];
+  locked=false;clueN=1;
+  const q=deck[i];lim=limitFor(q);
   $("score").textContent=score;
   $("count").textContent=`${i+1} of ${deck.length}`;
   $("streak").textContent=streak>=2?`🔥 ${streak}`:"";
   $("kind").textContent=`${q.k} · ${name(q.d)}`;
   $("q").innerHTML=q.q;
-  const opts=q.k==="True or false"?["True","False"]:shuffle([q.a,...q.w]);
-  const box=$("panes");box.className="panes";box.innerHTML="";
-  box.style.gridTemplateColumns=opts.length===2?"1fr 1fr":"1fr";
-  opts.forEach(o=>{
-    const b=document.createElement("button");
-    b.className="pane";b.textContent=o;
-    b.onclick=()=>answer(o,b);
-    box.appendChild(b);
-  });
+  const box=$("panes"), P=$("puzzle");
+  box.className="panes";box.innerHTML="";box.hidden=false;box.style.gridTemplateColumns="1fr";
+  P.innerHTML="";P.hidden=true;
+  if(q.t==="scramble")renderScramble(q);
+  else if(q.t==="order")renderOrder(q);
+  else{if(q.t==="clues")renderClues(q);renderChoices(q)}
   $("reveal").className="reveal";$("next").className="primary next";
   t0=performance.now();cancelAnimationFrame(raf);tick();
 }
 
+function renderChoices(q){
+  const opts=q.k==="True or false"?["True","False"]:shuffle([q.a,...q.w]);
+  const box=$("panes");
+  box.style.gridTemplateColumns=opts.length===2?"1fr 1fr":"1fr";
+  opts.forEach(o=>{const b=el("button","pane",o);b.onclick=()=>answer(o,b);box.appendChild(b)});
+}
+
+function renderClues(q){
+  const P=$("puzzle");P.hidden=false;
+  const ol=el("ol","clues"), tools=el("div","tools"), more=el("button","link");
+  tools.appendChild(more);P.append(ol,tools);
+  const draw=()=>{
+    ol.innerHTML="";
+    q.clues.slice(0,clueN).forEach((c,k)=>{const li=el("li");li.append(el("b",null,`Clue ${k+1}`),c);ol.appendChild(li)});
+    more.textContent=clueN<q.clues.length?`Another clue (−25% points)`:"No more clues";
+    more.disabled=clueN>=q.clues.length;
+  };
+  more.onclick=()=>{if(!locked&&clueN<q.clues.length){clueN++;draw()}};
+  draw();
+}
+
+function renderScramble(q){
+  const P=$("puzzle"), word=q.a;P.hidden=false;$("panes").hidden=true;
+  let letters=shuffle(word.split(""));
+  for(let g=0;letters.join("")===word&&g<20;g++)letters=shuffle(letters);
+  let picks=[];
+  const slots=el("div","slots"), tiles=el("div","tiles"), tools=el("div","tools"), clear=el("button","link","Clear");
+  slots.setAttribute("aria-label","Your answer");
+  tools.appendChild(clear);P.append(slots,tiles,tools,el("p","hint","Tap the letters in order. Tap a filled box to take a letter back."));
+  const draw=()=>{
+    slots.innerHTML="";tiles.innerHTML="";
+    for(let k=0;k<word.length;k++){
+      const s=el("button","slot"+(picks[k]!=null?" filled":""),picks[k]!=null?letters[picks[k]]:"");
+      s.setAttribute("aria-label",picks[k]!=null?`Remove ${letters[picks[k]]}`:`Empty box ${k+1}`);
+      s.onclick=()=>{if(locked||picks[k]==null)return;picks.splice(k,1);draw()};
+      slots.appendChild(s);
+    }
+    letters.forEach((L,j)=>{
+      const t=el("button","tile",L);t.disabled=picks.includes(j);
+      t.onclick=()=>{
+        if(locked||picks.includes(j))return;picks.push(j);draw();
+        if(picks.length===word.length){
+          if(picks.map(x=>letters[x]).join("")===word){slots.classList.add("right");resolve(true,false)}
+          else{slots.classList.remove("shake");void slots.offsetWidth;slots.classList.add("shake");
+            setTimeout(()=>{if(!locked){picks=[];draw()}},450)}
+        }
+      };
+      tiles.appendChild(t);
+    });
+  };
+  clear.onclick=()=>{if(!locked){picks=[];draw()}};
+  P._showAnswer=ok=>{
+    slots.innerHTML="";word.split("").forEach(L=>slots.appendChild(el("span","slot filled",L)));
+    slots.className="slots "+(ok?"right":"wrong");
+  };
+  draw();
+}
+
+function renderOrder(q){
+  const box=$("panes"), P=$("puzzle");
+  let sh=shuffle(q.items);
+  for(let g=0;sh.join("|")===q.items.join("|")&&g<20;g++)sh=shuffle(sh);
+  let picks=[];const btns=[];
+  P.hidden=false;
+  P.append(el("p","hint","Tap them from first to last. Tap a numbered one to undo it."));
+  sh.forEach(it=>{
+    const b=el("button","pane"), badge=el("span","badge");
+    b.append(badge,it);btns.push({b,badge,it});
+    b.onclick=()=>{
+      if(locked)return;
+      const at=picks.indexOf(it);
+      if(at>=0)picks=picks.slice(0,at);else picks.push(it);
+      btns.forEach(x=>{const n=picks.indexOf(x.it);x.badge.textContent=n>=0?n+1:""});
+      if(picks.length===q.items.length){
+        const ok=picks.every((x,k)=>x===q.items[k]);
+        btns.forEach(x=>{const good=picks.indexOf(x.it)===q.items.indexOf(x.it);
+          x.b.classList.add(good?"right":"wrong");
+          x.b.insertAdjacentHTML("beforeend",good?'<span class="mark" aria-label="right place">✓</span>':'<span class="mark" aria-label="wrong place">✕</span>')});
+        resolve(ok,false);
+      }
+    };
+    box.appendChild(b);
+  });
+  P._showAnswer=()=>{
+    btns.forEach(x=>{x.badge.textContent=q.items.indexOf(x.it)+1});
+  };
+}
+
 function tick(){
-  const left=Math.max(0,TIME-(performance.now()-t0)/1000);
-  $("bar").style.transform=`scaleX(${left/TIME})`;
-  if(left<=0){answer(null,null);return}
+  const left=Math.max(0,lim-(performance.now()-t0)/1000);
+  $("bar").style.transform=`scaleX(${left/lim})`;
+  if(left<=0){const q=deck[i];q.t==="scramble"||q.t==="order"?resolve(false,true):answer(null,null);return}
   raf=requestAnimationFrame(tick);
 }
 
 function answer(choice,btn){
-  if(locked)return;locked=true;cancelAnimationFrame(raf);
+  if(locked)return;
   const q=deck[i], ok=choice===q.a;
-  const left=Math.max(0,TIME-(performance.now()-t0)/1000);
-  $("panes").classList.add("done");
   $("panes").querySelectorAll(".pane").forEach(p=>{
-    p.disabled=true;
     if(p.textContent===q.a){p.classList.add("right");p.insertAdjacentHTML("beforeend",'<span class="mark" aria-label="correct">✓</span>')}
   });
+  if(!ok&&btn){btn.classList.add("wrong");btn.insertAdjacentHTML("beforeend",'<span class="mark" aria-label="your answer">✕</span>')}
+  resolve(ok,choice===null);
+}
+
+function resolve(ok,timedOut){
+  if(locked)return;locked=true;cancelAnimationFrame(raf);
+  const q=deck[i], left=Math.max(0,lim-(performance.now()-t0)/1000);
+  $("panes").classList.add("done");
+  document.querySelectorAll("#panes button,#puzzle button").forEach(b=>b.disabled=true);
+  if($("puzzle")._showAnswer){$("puzzle")._showAnswer(ok);$("puzzle")._showAnswer=null}
   let gained=0;
   if(ok){
     streak++;correct++;bestStreak=Math.max(bestStreak,streak);
-    gained=PTS[q.d]+Math.round(left*5)+(streak>=2?streak*10:0);
+    const base=q.t==="clues"?Math.round(PTS[q.d]*(1-.25*(clueN-1))):PTS[q.d];
+    gained=base+Math.round(left/lim*100)+(streak>=2?streak*10:0);
     score+=gained;
-  }else{
-    streak=0;
-    if(btn){btn.classList.add("wrong");btn.insertAdjacentHTML("beforeend",'<span class="mark" aria-label="your answer">✕</span>')}
-  }
+  }else streak=0;
+  const ans=q.t==="order"?q.items.join(" → "):q.a;
   $("score").textContent=score;
   $("streak").textContent=streak>=2?`🔥 ${streak}`:"";
-  $("rh").textContent=ok?`Correct  +${gained}`:(choice===null?`Time's up. It was ${q.a}.`:`Not quite. It was ${q.a}.`);
+  $("rh").textContent=ok?`Correct  +${gained}`:(timedOut?`Time's up. It was ${ans}.`:`Not quite. It was ${ans}.`);
   $("rn").textContent=q.n;$("rr").textContent=q.r;
   $("reveal").className="reveal on"+(ok?"":" miss");
   $("next").textContent=i===deck.length-1?"See results":"Next question";
