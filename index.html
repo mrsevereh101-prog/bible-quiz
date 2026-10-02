@@ -81,7 +81,6 @@ h1{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;line-height:1;margin:0 0 1
 .hud{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px;font-weight:600}
 .hud .score{font-size:1.4rem;font-weight:800}
 .hud .meta{color:var(--muted);font-size:.95rem}
-.streak{color:var(--amber)}
 .timer{height:8px;border-radius:8px;background:var(--line);overflow:hidden;margin-bottom:22px}
 .timer i{display:block;height:100%;width:100%;background:var(--text);transform-origin:left}
 .kind{color:var(--muted);font-size:.9rem;font-weight:600;margin:0 0 8px}
@@ -100,18 +99,7 @@ h1{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;line-height:1;margin:0 0 1
 .pane:nth-child(4n+4){background:var(--amber);color:#1D1B30}
 .pane:active{transform:scale(.98)}
 .panes.done .pane{opacity:.28;cursor:default}
-.panes.done .pane.right{opacity:1;box-shadow:0 0 0 3px #fff,0 0 22px 4px rgba(255,255,255,.45)}
-.panes.done .pane.wrong{opacity:.7}
-.pane .mark{float:right;font-weight:800;margin-left:8px}
 
-.reveal{margin-top:18px;background:var(--surface);border-radius:14px;padding:16px 18px;border-left:5px solid var(--good);display:none}
-.reveal.on{display:block}
-.reveal.miss{border-left-color:var(--bad)}
-.reveal h2{margin:0 0 6px;font-size:1.1rem}
-.reveal p{margin:0;font-family:Newsreader,Georgia,serif;font-size:1.08rem;line-height:1.5}
-.reveal .ref{font-family:inherit;color:var(--muted);font-size:.9rem;margin-top:8px}
-.next{margin-top:16px;display:none}
-.next.on{display:block}
 
 /* Results */
 .result-top{text-align:center;margin:36px 0 26px}
@@ -133,10 +121,6 @@ h1{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;line-height:1;margin:0 0 1
 .slot{width:40px;height:48px;border-radius:9px;border:2px dashed var(--line);background:transparent;color:var(--text);
   font-weight:800;font-size:1.3rem;display:grid;place-items:center;padding:0}
 .slot.filled{border-style:solid;border-color:var(--text);background:var(--surface)}
-.slots.right .slot{border-color:var(--good);color:var(--good)}
-.slots.wrong .slot{border-color:var(--bad);color:var(--bad)}
-.slots.shake{animation:shake .4s}
-@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
 .tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;background:var(--lead);padding:8px;border-radius:18px}
 .tile{width:44px;height:50px;border-radius:9px;color:#fff;font-weight:800;font-size:1.3rem;padding:0;position:relative}
 .tile::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
@@ -187,7 +171,7 @@ h1{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;line-height:1;margin:0 0 1
 .incoming span.now{background:var(--text);color:var(--bg);border-color:var(--text)}
 .incoming .ref{border:0;background:transparent;width:auto;color:var(--muted);font-weight:600;font-size:.85rem;margin-left:6px}
 .well{display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(11,1fr);aspect-ratio:7/11;gap:4px;background:var(--lead);padding:6px;border-radius:16px;
-  width:100%;max-width:min(380px,calc((100vh - 250px) * 7 / 11));max-width:min(380px,calc((100dvh - 250px) * 7 / 11));margin:0 auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+  width:100%;margin:0;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .cell{min-width:0;min-height:0;border-radius:6px;background:rgba(255,255,255,.05);display:grid;place-items:center;
   font-weight:800;font-size:clamp(1rem,5vw,1.35rem);color:#fff;position:relative;cursor:pointer}
 .cell.c0{background:var(--lapis)} .cell.c1{background:var(--ruby)} .cell.c2{background:var(--emerald)} .cell.c3{background:var(--amber);color:#1D1B30}
@@ -312,6 +296,22 @@ h1{background:linear-gradient(95deg,var(--lapis),var(--violet) 30%,var(--ruby) 5
 .cell.ghost{background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
 .well{gap:5px;padding:8px}
 
+/* Top bar, quit, pause, copy */
+.topbar{display:flex;justify-content:flex-end}
+.chip{background:var(--surface);color:var(--text);border-radius:999px;padding:8px 14px;font-weight:600;font-size:.9rem;
+  display:inline-flex;align-items:center;gap:8px;box-shadow:inset 0 0 0 2px var(--line),0 3px 0 var(--edge),0 6px 12px var(--shadow)}
+.chip:active{transform:translateY(2px)}
+.chip svg{width:18px;height:18px;flex:none}
+.chip[aria-pressed="false"]{color:var(--muted)}
+.hud-right{display:flex;align-items:center;gap:10px}
+.copy-row{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:12px}
+.copy-status{color:var(--muted);font-size:.9rem;min-height:1.2em;margin:0;text-align:center;user-select:all;-webkit-user-select:all}
+.well-wrap{position:relative;width:100%;max-width:min(380px,calc((100vh - 250px) * 7 / 11));max-width:min(380px,calc((100dvh - 250px) * 7 / 11));margin:0 auto}
+.paused{position:absolute;inset:0;display:grid;place-items:center;border-radius:22px;background:rgba(7,6,26,.62);
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.paused[hidden]{display:none}
+.paused button{width:auto;min-width:60%;padding-inline:28px}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -319,6 +319,7 @@ h1{background:linear-gradient(95deg,var(--lapis),var(--violet) 30%,var(--ruby) 5
 <main class="app">
 
   <section class="screen on" id="start" aria-labelledby="t">
+    <div class="topbar"><button class="chip" id="snd" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>Sound on</span></button></div>
     <div class="window-wrap" aria-hidden="true"><div class="window"><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
     <h1 id="t">Bible Quiz</h1>
     <p class="lede">Ten questions against the clock, with puzzles mixed in. Answer fast and keep your streak alive.</p>
@@ -339,7 +340,7 @@ h1{background:linear-gradient(95deg,var(--lapis),var(--violet) 30%,var(--ruby) 5
   <section class="screen" id="game" aria-live="polite">
     <div class="hud">
       <span class="score" id="count">1 of 10</span>
-      <span class="meta">Answers shown at the end</span>
+      <span class="hud-right"><span class="meta">Answers at the end</span><button class="chip" id="quit">Quit</button></span>
     </div>
     <div class="timer" aria-hidden="true"><i id="bar"></i></div>
     <p class="kind" id="kind"></p>
@@ -362,6 +363,7 @@ h1{background:linear-gradient(95deg,var(--lapis),var(--violet) 30%,var(--ruby) 5
     <p class="verdict" id="verdict"></p>
     <button class="primary" id="again">Play again</button>
     <button class="ghost" id="home">Change level</button>
+    <div class="copy-row"><button class="chip" id="copy">Copy my score</button><p class="copy-status" id="copyStatus" aria-live="polite"></p></div>
     <h2 class="review-h">Your answers</h2>
     <ol class="review" id="review"></ol>
   </section>
@@ -369,11 +371,14 @@ h1{background:linear-gradient(95deg,var(--lapis),var(--violet) 30%,var(--ruby) 5
   <section class="screen" id="fall">
     <div class="hud">
       <span class="score" id="fScore">0</span>
-      <span class="meta" id="fMeta">0 words</span>
+      <span class="hud-right"><span class="meta" id="fMeta">0 words</span><button class="chip" id="fPause" aria-pressed="false">Pause</button></span>
     </div>
     <p class="kind" id="fIncLabel" style="text-align:center">Incoming word</p>
     <div class="incoming" id="fIncoming"></div>
-    <div class="well" id="well" aria-label="Word Fall board"></div>
+    <div class="well-wrap">
+      <div class="well" id="well" aria-label="Word Fall board"></div>
+      <div class="paused" id="fPaused" hidden><button class="primary" id="fResume">Resume</button></div>
+    </div>
     <p class="flash" id="fFlash" aria-live="polite"></p>
     <div class="pad" id="fPad">
       <button id="fL" aria-label="Move left">◀</button>
@@ -385,8 +390,9 @@ h1{background:linear-gradient(95deg,var(--lapis),var(--violet) 30%,var(--ruby) 5
       <div class="sub" id="fBest"></div>
       <p class="verdict" id="fVerdict"></p>
       <button class="primary" id="fAgain">Play again</button>
+      <div class="copy-row"><button class="chip" id="fCopy">Copy my score</button><p class="copy-status" id="fCopyStatus" aria-live="polite"></p></div>
     </div>
-    <p class="hint">Spell words left to right, or up and down. Tap a column to slide the letter there. Keyboard: ← → to move, ↓ or space to drop.</p>
+    <p class="hint">Spell words left to right, or up and down. Tap a column to slide the letter there, or tap its own column to drop it. Keyboard: ← → to move, ↓ or space to drop, P to pause.</p>
     <div class="found" id="fFound"></div>
     <button class="ghost" id="fHome">Back to menu</button>
   </section>
@@ -584,6 +590,41 @@ function paintBest(){
   $("bestStart").textContent=b?`Your best on ${name(level)}: ${b}`:"";
   $("bestWf").textContent=B.wordfall?`Word Fall best: ${B.wordfall}`:"";
 }
+/* Sound effects: tiny Web Audio tones, created on first tap */
+let soundOn=true;try{soundOn=localStorage.getItem("bq-sound")!=="off"}catch(e){}
+let AC=null;
+function tone(f,dur,type="sine",vol=.12,when=0,slide=0){
+  if(!soundOn)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended")AC.resume();
+    const t=AC.currentTime+when, o=AC.createOscillator(), g=AC.createGain();
+    o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g).connect(AC.destination);o.start(t);o.stop(t+dur+.02);
+  }catch(e){}
+}
+const sfx={
+  tap:()=>tone(660,.07,"triangle",.08),
+  lock:()=>{tone(523,.12,"triangle",.1);tone(784,.16,"triangle",.1,.07)},
+  timeout:()=>tone(330,.3,"sine",.1,0,180),
+  land:()=>tone(150,.09,"square",.05,0,90),
+  word:n=>[523,659,784,1047].slice(0,Math.min(4,1+n)).forEach((f,k)=>tone(f,.18,"triangle",.11,k*.07)),
+  end:()=>[392,523,659,784].forEach((f,k)=>tone(f,.25,"sine",.1,k*.1)),
+  over:()=>[440,349,262].forEach((f,k)=>tone(f,.28,"sawtooth",.05,k*.14))
+};
+function paintSound(){
+  $("snd").setAttribute("aria-pressed",soundOn);
+  $("snd").querySelector("span").textContent=soundOn?"Sound on":"Sound off";
+  $("snd").querySelector(".w").style.display=soundOn?"":"none";
+}
+
+/* Copy a result line; falls back to showing selectable text when the clipboard is refused */
+function copyScore(text,status){
+  const fail=()=>{status.textContent=text};
+  try{navigator.clipboard.writeText(text).then(()=>{status.textContent="Copied. Paste it to a friend."},fail)}catch(e){fail()}
+}
+
 function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
 
 document.querySelectorAll(".lvl").forEach(b=>b.onclick=()=>{
@@ -656,7 +697,7 @@ function renderScramble(q){
     letters.forEach((L,j)=>{
       const t=el("button","tile g"+(j%6),L);t.disabled=picks.includes(j);
       t.onclick=()=>{
-        if(locked||picks.includes(j))return;picks.push(j);draw();
+        if(locked||picks.includes(j))return;picks.push(j);sfx.tap();draw();
         if(picks.length===word.length){
           const guess=picks.map(x=>letters[x]).join("");
           slots.classList.add("locked");resolve(guess===word,guess);
@@ -683,7 +724,7 @@ function renderOrder(q){
     b.onclick=()=>{
       if(locked)return;
       const at=picks.indexOf(it);
-      if(at>=0)picks=picks.slice(0,at);else picks.push(it);
+      if(at>=0)picks=picks.slice(0,at);else{picks.push(it);sfx.tap()}
       btns.forEach(x=>{const n=picks.indexOf(x.it);x.badge.textContent=n>=0?n+1:""});
       if(picks.length===q.items.length){
         btns.forEach(x=>x.b.classList.add("picked"));
@@ -721,6 +762,7 @@ function resolve(ok,given){
     score+=gained;
   }else streak=0;
   log.push({q,ok,given,gained});
+  given===null?sfx.timeout():sfx.lock();
   $("locked").textContent=given===null?"Time's up. Moving on…":"Locked in.";
   advanceT=setTimeout(()=>{i++;i<deck.length?ask():finish()},given===null?1100:700);
 }
@@ -745,12 +787,17 @@ function finish(){
     li.append(el("p","rn",q.n),el("div","rr",q.r));
     R.appendChild(li);
   });
+  $("copyStatus").textContent="";
+  sfx.end();
   show("end");
 }
 
 $("go").onclick=start;
 $("again").onclick=start;
 $("home").onclick=()=>{paintBest();show("start")};
+$("quit").onclick=()=>{locked=true;cancelAnimationFrame(raf);clearTimeout(advanceT);paintBest();show("start")};
+$("copy").onclick=()=>copyScore(`I scored ${score} on Bible Quiz (${name(level)}), ${correct} of ${deck.length} correct.`,$("copyStatus"));
+$("snd").onclick=()=>{soundOn=!soundOn;try{localStorage.setItem("bq-sound",soundOn?"on":"off")}catch(e){}paintSound();sfx.tap()};
 
 /* ================= Word Fall ================= */
 const WF_WORDS=["ARK","ADAM","EVE","ABEL","CAIN","SETH","NOAH","SHEM","LOT","ISAAC","JACOB","ESAU","LEAH","JOSEPH","MOSES","AARON","RUTH","BOAZ","DAVID","SAUL","ELI","JOB","AMOS","JOEL","JONAH","MICAH","EZRA","ESTHER","DANIEL","MARY","MARTHA","JOHN","PETER","PAUL","MARK","LUKE","JAMES","JUDE","TITUS","SILAS","LYDIA","EDEN","ZION","EGYPT","JORDAN","SINAI","LAMB","DOVE","FAITH","GRACE","HOPE","LOVE","PSALM","MANNA","ALTAR","ANGEL","CROSS","BREAD","WINE","VINE","SEED","LIGHT","TOMB","KING","CROWN","AMEN","TEMPLE","GOSPEL","HEAVEN","SHEEP","FISH","STAR","ROCK","SALT","OIL","LAW","PEACE","JOY","MERCY","ABRAM","SARAH","HAGAR","NAOMI","HANNAH","ELIJAH","ISAIAH"];
@@ -762,7 +809,7 @@ function wfBuild(){
   const W=$("well");W.innerHTML="";
   for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
     const d=el("div","cell");d.dataset.c=c;
-    d.onpointerdown=e=>{e.preventDefault();wfSlideTo(c)};
+    d.onpointerdown=e=>{e.preventDefault();if(wf&&wf.piece&&wf.piece.c===c)wfDrop();else wfSlideTo(c)};
     W.appendChild(d);
   }
 }
@@ -770,7 +817,8 @@ function wfPickWord(){let w;do{w=WF_FEED[Math.floor(Math.random()*WF_FEED.length
 function wfStart(){
   if(wf){wf.over=true;cancelAnimationFrame(wf.raf);clearTimeout(wf.popT)}
   wf={board:Array.from({length:ROWS},()=>Array(COLS).fill(null)),piece:null,word:wfPickWord(),idx:0,score:0,words:[],
-      acc:0,last:performance.now(),busy:false,over:false,raf:0,popT:0};
+      acc:0,last:performance.now(),busy:false,over:false,paused:false,raf:0,popT:0};
+  wfPause(false);$("fCopyStatus").textContent="";
   $("fOver").hidden=true;$("fPad").hidden=false;$("fIncoming").hidden=false;$("fIncLabel").hidden=false;
   $("fFound").innerHTML="";$("fFlash").textContent="";
   wfBuild();show("fall");wfSpawn();
@@ -784,12 +832,19 @@ function wfSpawn(){
   wf.piece={r:0,c,ch,k:Math.floor(Math.random()*6)};wf.acc=0;wfRender();
 }
 function wfFree(r,c){return r>=0&&r<ROWS&&c>=0&&c<COLS&&!wf.board[r][c]}
-function wfMove(d){if(!wf||wf.busy||wf.over||!wf.piece)return;const p=wf.piece;if(wfFree(p.r,p.c+d)){p.c+=d;wfRender()}}
-function wfSlideTo(c){if(!wf||wf.busy||wf.over||!wf.piece)return;const p=wf.piece,d=Math.sign(c-p.c);while(p.c!==c&&wfFree(p.r,p.c+d))p.c+=d;wfRender()}
-function wfDrop(){if(!wf||wf.busy||wf.over||!wf.piece)return;const p=wf.piece;while(wfFree(p.r+1,p.c))p.r++;wfLand()}
+function wfCan(){return wf&&!wf.busy&&!wf.over&&!wf.paused&&wf.piece}
+function wfPause(on){
+  if(!wf||wf.over)on=false;
+  if(wf)wf.paused=on;
+  $("fPaused").hidden=!on;$("fPause").setAttribute("aria-pressed",on);$("fPause").textContent=on?"Resume":"Pause";
+  if(!on&&wf)wf.last=performance.now();
+}
+function wfMove(d){if(!wfCan())return;const p=wf.piece;if(wfFree(p.r,p.c+d)){p.c+=d;wfRender()}}
+function wfSlideTo(c){if(!wfCan())return;const p=wf.piece,d=Math.sign(c-p.c);while(p.c!==c&&wfFree(p.r,p.c+d))p.c+=d;wfRender()}
+function wfDrop(){if(!wfCan())return;const p=wf.piece;while(wfFree(p.r+1,p.c))p.r++;wfLand()}
 function wfStep(){const p=wf.piece;if(wfFree(p.r+1,p.c)){p.r++;wfRender()}else wfLand()}
 function wfLand(){
-  const p=wf.piece;wf.board[p.r][p.c]={ch:p.ch,k:p.k};wf.piece=null;wfRender();wfResolve(1);
+  const p=wf.piece;wf.board[p.r][p.c]={ch:p.ch,k:p.k};wf.piece=null;sfx.land();wfRender();wfResolve(1);
 }
 // Finds Bible words reading left→right in rows, or up/down in columns.
 function wfFind(){
@@ -816,7 +871,7 @@ function wfResolve(chain){
   if(!hits.size){wf.busy=false;wfSpawn();return}
   wf.busy=true;
   const pts=found.reduce((t,w)=>t+w.length*w.length*10,0)*chain;
-  wf.score+=pts;
+  wf.score+=pts;sfx.word(chain);
   found.forEach(w=>{wf.words.push(w);$("fFound").prepend(el("span",null,w))});
   $("fFlash").textContent=`${found.join(" + ")}  +${pts}${chain>1?`  (chain ×${chain})`:""}`;
   const cells=$("well").children;
@@ -853,11 +908,11 @@ function wfLoop(now){
   if(!wf||wf.over)return;
   const dt=Math.min(100,now-wf.last);wf.last=now;
   if(!$("fall").classList.contains("on")){wf.raf=requestAnimationFrame(wfLoop);return}
-  if(!wf.busy&&wf.piece){wf.acc+=dt;if(wf.acc>=wfInterval()){wf.acc=0;wfStep()}}
+  if(!wf.busy&&!wf.paused&&wf.piece){wf.acc+=dt;if(wf.acc>=wfInterval()){wf.acc=0;wfStep()}}
   wf.raf=requestAnimationFrame(wfLoop);
 }
 function wfGameOver(){
-  wf.over=true;wf.piece=null;cancelAnimationFrame(wf.raf);
+  wf.over=true;wf.piece=null;cancelAnimationFrame(wf.raf);sfx.over();
   const best=getBest(), prev=best.wordfall||0;
   if(wf.score>prev){best.wordfall=wf.score;setBest(best)}
   $("fFinal").textContent=wf.score;
@@ -871,15 +926,21 @@ $("fL").onclick=()=>wfMove(-1);
 $("fR").onclick=()=>wfMove(1);
 $("fD").onclick=wfDrop;
 $("fAgain").onclick=wfStart;
+$("fPause").onclick=()=>wfPause(!(wf&&wf.paused));
+$("fResume").onclick=()=>wfPause(false);
+$("fCopy").onclick=()=>copyScore(`I scored ${wf.score} in Bible Quiz Word Fall and spelled ${wf.words.length} word${wf.words.length===1?"":"s"}.`,$("fCopyStatus"));
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&wf&&!wf.over&&$("fall").classList.contains("on"))wfPause(true)});
 $("wf").onclick=wfStart;
-$("fHome").onclick=()=>{if(wf){wf.over=true;cancelAnimationFrame(wf.raf);clearTimeout(wf.popT)}paintBest();show("start")};
+$("fHome").onclick=()=>{if(wf){wf.over=true;cancelAnimationFrame(wf.raf);clearTimeout(wf.popT)}wfPause(false);paintBest();show("start")};
 document.addEventListener("keydown",e=>{
   if(!$("fall").classList.contains("on")||!wf||wf.over)return;
+  if(e.key==="p"||e.key==="P"||e.key==="Escape"){wfPause(!wf.paused);e.preventDefault();return}
   if(e.key==="ArrowLeft"){wfMove(-1);e.preventDefault()}
   else if(e.key==="ArrowRight"){wfMove(1);e.preventDefault()}
-  else if(e.key==="ArrowDown"||e.key===" "){wfDrop();e.preventDefault()}
+  else if(e.key==="ArrowDown"||e.key===" "){if(e.target.tagName==="BUTTON")e.target.blur();wfDrop();e.preventDefault()}
 });
 
+paintSound();
 paintBest();
 </script>
 </body>
