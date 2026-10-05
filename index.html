@@ -368,18 +368,18 @@ h1{background:linear-gradient(95deg,#8B5CF6,#C048E8 35%,#F0469A 62%,#F97316);-we
     <div class="topbar"><button class="chip" id="snd" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>Sound on</span></button></div>
     <div class="window-wrap" aria-hidden="true"><div class="window"><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
     <h1 id="t">Bible Quiz</h1>
-    <p class="lede">Ten questions against the clock, with puzzles mixed in. Answer fast and keep your streak alive.</p>
+    <p class="lede">Ten questions, a ticking clock and a few puzzles along the way. You’ll see every answer at the end.</p>
     <p class="label">Choose a level</p>
     <div class="levels" role="group" aria-label="Level">
-      <button class="lvl" data-l="mixed" aria-pressed="true"><b>Mixed</b><small>A bit of everything</small></button>
-      <button class="lvl" data-l="easy" aria-pressed="false"><b>Easy</b><small>100 pts each</small></button>
-      <button class="lvl" data-l="medium" aria-pressed="false"><b>Medium</b><small>150 pts each</small></button>
-      <button class="lvl" data-l="hard" aria-pressed="false"><b>Hard</b><small>200 pts each</small></button>
-      <button class="lvl wide" data-l="puzzles" aria-pressed="false"><b>Puzzles only</b><small>Unscramble, put in order, who am I, odd one out</small></button>
+      <button class="lvl" data-l="mixed" aria-pressed="true"><b>Mixed</b><small>Every level and style<br>Points by difficulty</small></button>
+      <button class="lvl" data-l="easy" aria-pressed="false"><b>Easy</b><small>Familiar stories<br>100 points each</small></button>
+      <button class="lvl" data-l="medium" aria-pressed="false"><b>Medium</b><small>For regular readers<br>150 points each</small></button>
+      <button class="lvl" data-l="hard" aria-pressed="false"><b>Hard</b><small>Names and details<br>200 points each</small></button>
+      <button class="lvl wide" data-l="puzzles" aria-pressed="false"><b>Puzzles only</b><small>Unscramble, Put in order, Who am I? and Odd one out</small></button>
     </div>
-    <button class="primary" id="go">Start round</button>
+    <button class="primary" id="go">Start quiz</button>
     <p class="best" id="bestStart"></p>
-    <button class="ghost wf-btn" id="wf"><b>Play Word Fall</b><small>Letters fall. Spell Bible words to clear them.</small></button>
+    <button class="ghost wf-btn" id="wf"><b>Play Word Fall</b><small>Catch falling letters and spell Bible words</small></button>
     <p class="best" id="bestWf"></p>
   </section>
 
@@ -419,7 +419,7 @@ h1{background:linear-gradient(95deg,#8B5CF6,#C048E8 35%,#F0469A 62%,#F97316);-we
       <span class="score" id="fScore">0</span>
       <span class="hud-right"><span class="meta" id="fMeta">0 words</span><button class="chip" id="fPause" aria-pressed="false">Pause</button></span>
     </div>
-    <p class="kind" id="fIncLabel" style="text-align:center">Incoming word</p>
+    <p class="kind" id="fIncLabel" style="text-align:center">Spell this word</p>
     <div class="incoming" id="fIncoming"></div>
     <div class="well-wrap">
       <div class="well" id="well" aria-label="Word Fall board"></div>
@@ -438,7 +438,7 @@ h1{background:linear-gradient(95deg,#8B5CF6,#C048E8 35%,#F0469A 62%,#F97316);-we
       <button class="primary" id="fAgain">Play again</button>
       <div class="copy-row"><button class="chip" id="fCopy">Copy my score</button><p class="copy-status" id="fCopyStatus" aria-live="polite"></p></div>
     </div>
-    <p class="hint">Spell words left to right, or up and down. Tap a column to slide the letter there, or tap its own column to drop it. Keyboard: ← → to move, ↓ or space to drop, P to pause.</p>
+    <p class="hint">Spell Bible words across, or up and down, to clear them. Tap a column to move the letter there, then tap it again to drop. Keyboard: ← → move, ↓ drop, P pause.</p>
     <div class="found" id="fFound"></div>
     <button class="ghost" id="fHome">Back to menu</button>
   </section>
@@ -668,7 +668,7 @@ function paintSound(){
 /* Copy a result line; falls back to showing selectable text when the clipboard is refused */
 function copyScore(text,status){
   const fail=()=>{status.textContent=text};
-  try{navigator.clipboard.writeText(text).then(()=>{status.textContent="Copied. Paste it to a friend."},fail)}catch(e){fail()}
+  try{navigator.clipboard.writeText(text).then(()=>{status.textContent="Copied. Paste it anywhere to share."},fail)}catch(e){fail()}
 }
 
 function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
@@ -717,7 +717,7 @@ function renderClues(q){
   const draw=()=>{
     ol.innerHTML="";
     q.clues.slice(0,clueN).forEach((c,k)=>{const li=el("li");li.append(el("b",null,`Clue ${k+1}`),c);ol.appendChild(li)});
-    more.textContent=clueN<q.clues.length?`Another clue (−25% points)`:"No more clues";
+    more.textContent=clueN<q.clues.length?`Show another clue (−25% points)`:"No more clues";
     more.disabled=clueN>=q.clues.length;
   };
   more.onclick=()=>{if(!locked&&clueN<q.clues.length){clueN++;draw()}};
@@ -731,7 +731,7 @@ function renderScramble(q){
   let picks=[];
   const slots=el("div","slots"), tiles=el("div","tiles"), tools=el("div","tools"), clear=el("button","link","Clear");
   slots.setAttribute("aria-label","Your answer");
-  tools.appendChild(clear);P.append(slots,tiles,tools,el("p","hint","Tap the letters in order. Tap a filled box to take a letter back. Your word locks in when every box is full."));
+  tools.appendChild(clear);P.append(slots,tiles,tools,el("p","hint","Tap letters to spell the answer. Tap a filled box to take a letter back."));
   const draw=()=>{
     slots.innerHTML="";tiles.innerHTML="";
     for(let k=0;k<word.length;k++){
@@ -762,7 +762,7 @@ function renderOrder(q){
   for(let g=0;sh.join("|")===q.items.join("|")&&g<20;g++)sh=shuffle(sh);
   let picks=[];const btns=[];
   P.hidden=false;
-  P.append(el("p","hint","Tap them from first to last. Tap a numbered one to undo it. Your order locks in when all are numbered."));
+  P.append(el("p","hint","Tap from first to last. Tap a numbered item to undo it."));
   const off=Math.floor(Math.random()*6);
   sh.forEach((it,n)=>{
     const b=el("button","pane g"+((n+off)%6)), badge=el("span","badge");
@@ -809,7 +809,7 @@ function resolve(ok,given){
   }else streak=0;
   log.push({q,ok,given,gained});
   given===null?sfx.timeout():sfx.lock();
-  $("locked").textContent=given===null?"Time's up. Moving on…":"Locked in.";
+  $("locked").textContent=given===null?"Time’s up.":"Answer saved.";
   advanceT=setTimeout(()=>{i++;i<deck.length?ask():finish()},given===null?1100:700);
 }
 
@@ -822,7 +822,7 @@ function finish(){
   $("sStreak").textContent=bestStreak;
   $("sLevel").textContent=name(level);
   const r=correct/deck.length;
-  $("verdict").textContent=r===1?"A perfect round. Try the next level up.":r>=.7?"Strong round. A couple more and you'll have it all.":r>=.4?"Good start. Each miss comes with the verse below, so the next round gets easier.":"Tough round. Read the verses below and run it back.";
+  $("verdict").textContent=r===1?"A perfect round. Try the next level up.":r>=.7?"Strong round. Check the misses below and go again.":r>=.4?"Good start. The verses below will help next time.":"Tough round. Read through the answers below, then try again.";
   const R=$("review");R.innerHTML="";
   log.forEach((e,k)=>{
     const q=e.q, li=el("li",e.ok?"":"miss"), ans=q.t==="order"?q.items.join(" → "):q.a;
@@ -842,7 +842,7 @@ $("go").onclick=start;
 $("again").onclick=start;
 $("home").onclick=()=>{paintBest();show("start")};
 $("quit").onclick=()=>{locked=true;cancelAnimationFrame(raf);clearTimeout(advanceT);paintBest();show("start")};
-$("copy").onclick=()=>copyScore(`I scored ${score} on Bible Quiz (${name(level)}), ${correct} of ${deck.length} correct.`,$("copyStatus"));
+$("copy").onclick=()=>copyScore(`I scored ${score} on Bible Quiz (${name(level)}) and got ${correct} of ${deck.length} right.`,$("copyStatus"));
 $("snd").onclick=()=>{soundOn=!soundOn;try{localStorage.setItem("bq-sound",soundOn?"on":"off")}catch(e){}paintSound();sfx.tap()};
 
 /* ================= Word Fall ================= */
@@ -964,7 +964,7 @@ function wfGameOver(){
   $("fFinal").textContent=wf.score;
   $("fBest").textContent=wf.score>prev?(prev?`New best, up from ${prev}`:"Your first Word Fall score"):`Best: ${prev}`;
   const n=wf.words.length;
-  $("fVerdict").textContent=n===0?"The well filled up. Try laying each word out in a row.":`You spelled ${n} word${n===1?"":"s"}${n>=10?". Well played.":"."}`;
+  $("fVerdict").textContent=n===0?"The board filled up. Tip: drop each letter beside the last one to spell the word in a row.":`You spelled ${n} word${n===1?"":"s"}${n>=10?". Well played.":"."}`;
   $("fPad").hidden=true;$("fIncoming").hidden=true;$("fIncLabel").hidden=true;$("fOver").hidden=false;$("fFlash").textContent="";
   $("fOver").scrollIntoView({behavior:"smooth",block:"center"});
 }
